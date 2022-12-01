@@ -9,4 +9,4 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # Advent of Code 2022
 
-Quick and dirty solutions to AoC in Rust.
+Quick and dirty solutions to [AoC](https://adventofcode.com/) in Rust.
