@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Advent of Code 2022
+Upstream-Contact: Sebastian Andersson <sebastian@bittr.nu>
+Source: https://github.com/bofh69/aoc_2022
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...

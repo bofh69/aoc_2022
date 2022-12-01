@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 Sebastian Andersson <sebastian@bittr.nu>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 [package]
 name = "advent_of_code_2022"
 version = "0.1.0"
