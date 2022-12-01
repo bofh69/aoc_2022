@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2022 Sebastian Andersson <sebastian@bittr.nu>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Continuous Integration
+
+on: push
+
+env:
+    CARGO_TERM_COLOR: always
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        name: Check
+        steps:
+            - uses: actions/checkout@v3
+            - name: Create missing input
+              run: mkdir -p input/2022; seq 1 25 | while read day; do touch input/2022/day$day.txt; done
+            - name: cargo check
+              run: cargo check
+
+    test:
+        runs-on: ubuntu-latest
+        name: Test
+        steps:
+            - uses: actions/checkout@v3
+            - name: Create missing input
+              run: mkdir -p input/2022; seq 1 25 | while read day; do touch input/2022/day$day.txt; done
+            - name: cargo test
+              run: cargo test
