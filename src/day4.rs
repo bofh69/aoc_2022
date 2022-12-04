@@ -8,14 +8,6 @@ use sscanf::sscanf;
 type InputType = (u8, u8, u8, u8);
 type SolutionType = usize;
 
-fn bitset(from: u8, to: u8) -> u128 {
-    let mut result = 0;
-    for i in from..=to {
-        result |= 1 << i;
-    }
-    result
-}
-
 #[aoc_generator(day4)]
 pub fn input_generator(input: &str) -> Vec<InputType> {
     input
@@ -23,13 +15,15 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
         .map(|line| sscanf!(line, "{u8}-{u8},{u8}-{u8}").unwrap())
         .collect()
 }
+fn within(from1: u8, to1: u8, from2: u8, to2: u8) -> bool {
+    from1 >= from2 && to1 <= to2
+}
 
 #[aoc(day4, part1)]
 pub fn solve_part1(data: &[InputType]) -> SolutionType {
     data.iter()
-        .map(|&(from1, to1, from2, to2)| (bitset(from1, to1), bitset(from2, to2)))
-        .filter(|&(first_set, second_set)| {
-            first_set & second_set == first_set || first_set & second_set == second_set
+        .filter(|&&(from1, to1, from2, to2)| {
+            within(from1, to1, from2, to2) || within(from2, to2, from1, to1)
         })
         .count()
 }
@@ -37,7 +31,10 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
 #[aoc(day4, part2)]
 pub fn solve_part2(data: &[InputType]) -> SolutionType {
     data.iter()
-        .map(|&(from1, to1, from2, to2)| (bitset(from1, to1), bitset(from2, to2)))
-        .filter(|&(first_set, second_set)| first_set & second_set != 0)
+        .filter(|&&(from1, to1, from2, to2)| {
+            (from1..=to1).contains(&from2)
+                || (from2..=to2).contains(&from1)
+                || (from1..=to1).contains(&to2)
+        })
         .count()
 }
