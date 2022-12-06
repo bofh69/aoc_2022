@@ -14,16 +14,14 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
 }
 
 fn solve_for<const N: usize>(data: &[InputType]) -> SolutionType {
-    let len = data.len() /* - N */; // Adding -n makes it 14% slower!
-    'next: for i in 0..len {
-        for j in 0..N-1 {
-            for k in j + 1..N {
-                if data[i + j] == data[i + k] {
-                    continue 'next;
-                }
-            }
+    for (pos, window) in data.windows(N).enumerate() {
+        if !window
+            .iter()
+            .enumerate()
+            .any(|(win_pos, c)| window[win_pos + 1..].contains(c))
+        {
+            return pos + N;
         }
-        return i + N;
     }
     usize::MAX
 }
