@@ -13,32 +13,27 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
     input.as_bytes().into()
 }
 
-#[aoc(day6, part1)]
-pub fn solve_part1(data: &[InputType]) -> SolutionType {
-    'next: for i in 0..data.len() - 4 {
-        for j in 0..3 {
-            for k in j + 1..4 {
+fn solve_for(data: &[InputType], n: usize) -> SolutionType {
+    let len = data.len() /* - n */; // Adding -n makes it 14% slower!
+    'next: for i in 0..len {
+        for j in 0..n-1 {
+            for k in j + 1..n {
                 if data[i + j] == data[i + k] {
                     continue 'next;
                 }
             }
         }
-        return i + 4;
+        return i + n;
     }
     usize::MAX
 }
 
+#[aoc(day6, part1)]
+pub fn solve_part1(data: &[InputType]) -> SolutionType {
+    solve_for(data, 4)
+}
+
 #[aoc(day6, part2)]
 pub fn solve_part2(data: &[InputType]) -> SolutionType {
-    'next: for i in 0..data.len() - 4 {
-        for j in 0..13 {
-            for k in j + 1..14 {
-                if data[i + j] == data[i + k] {
-                    continue 'next;
-                }
-            }
-        }
-        return i + 14;
-    }
-    usize::MAX
+    solve_for(data, 14)
 }
