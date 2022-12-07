@@ -7,10 +7,10 @@ use aoc_runner_derive::{aoc, aoc_generator};
 
 #[derive(Debug)]
 pub enum Command {
-    Cd(String),
+    Cd(bool),
     Ls,
-    Size(String, SolutionType),
-    Dir(String),
+    Size(SolutionType),
+    Dir,
 }
 
 type InputType = Command;
@@ -27,7 +27,7 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
                 if let Some(cmd) = args.next() {
                     match cmd {
                         "ls" => Command::Ls,
-                        "cd" => Command::Cd(args.next().expect("cd takes too args").to_owned()),
+                        "cd" => Command::Cd(args.next().expect("cd takes too args").to_owned() != ".."),
                         _ => unreachable!("Unknown command: {}", line),
                     }
                 } else {
@@ -36,11 +36,10 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
             } else {
                 let mut fields = line.split(' ');
                 let first = fields.next().expect("Should be two fields");
-                let second = fields.next().expect("Should be two fields");
                 if "dir" == first {
-                    Command::Dir(second.parse().unwrap())
+                    Command::Dir
                 } else {
-                    Command::Size(second.to_owned(), first.parse().unwrap())
+                    Command::Size(first.parse().unwrap())
                 }
             }
         })
@@ -56,8 +55,8 @@ fn find_dir_sizes(
     while *position < data.len() {
         *position += 1;
         match &data[*position - 1] {
-            Command::Cd(path) => {
-                if path == ".." {
+            Command::Cd(down) => {
+                if !down {
                     dir_sizes.push(total);
                     return total;
                 } else {
@@ -65,8 +64,8 @@ fn find_dir_sizes(
                 }
             }
             Command::Ls => (),
-            Command::Dir(_) => (),
-            Command::Size(_, size) => {
+            Command::Dir => (),
+            Command::Size(size) => {
                 total += size;
             }
         }
