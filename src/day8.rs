@@ -19,11 +19,7 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
     let height = data.len();
 
     let mut visibles = Vec::with_capacity(width * height);
-    // TODO: Compare with:
-    // visibles.extend((0..width*height).iter().map(|_| false));
-    for _i in 0..width * height {
-        visibles.push(false);
-    }
+    visibles.extend((0..width * height).map(|_| false));
 
     for y in 0..height {
         let mut current = 0;
@@ -61,6 +57,7 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
         }
     }
 
+    /*
     for y in 0..height {
         for x in 0..width {
             if visibles[y * width + x] {
@@ -71,11 +68,71 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
         }
         println!();
     }
+    */
 
     visibles.iter().filter(|&&visible| visible).count()
 }
 
 #[aoc(day8, part2)]
 pub fn solve_part2(data: &[InputType]) -> SolutionType {
-    data.len()
+    let width = data[0].len();
+    let height = data.len();
+
+    let mut trees = Vec::with_capacity(width * height);
+    trees.extend((0..width * height).map(|_| 0));
+
+    // TODO probably faster method:
+    // Calculate up/down/left/right separately.
+    // For up:
+    //   from top to bottom, left to right:
+    //     if the one above is < current tree, add its value + 1, otherwise 1
+    // Dito for the other directions.
+
+    for y in 1..height - 1 {
+        for x in 1..width - 1 {
+            let mut count1 = 0;
+            let tree_height = data[y][x];
+            for ty in 0..y {
+                let ty = y - ty - 1;
+                count1 += 1;
+                if data[ty][x] >= tree_height {
+                    break;
+                }
+            }
+            let mut count2 = 0;
+            for ty in y + 1..height {
+                count2 += 1;
+                if data[ty][x] >= tree_height {
+                    break;
+                }
+            }
+            let mut count3 = 0;
+            for tx in 0..x {
+                let tx = x - tx - 1;
+                count3 += 1;
+                if data[y][tx] >= tree_height {
+                    break;
+                }
+            }
+            let mut count4 = 0;
+            for tx in x + 1..width {
+                count4 += 1;
+                if data[y][tx] >= tree_height {
+                    break;
+                }
+            }
+            trees[y * width + x] = count1 * count2 * count3 * count4;
+        }
+    }
+
+    /*
+    for y in 0..height {
+        for x in 0..width {
+            print!("{:02} ", trees[ y * width + x]);
+        }
+        println!();
+    }
+    */
+
+    *trees.iter().max().unwrap() as usize
 }

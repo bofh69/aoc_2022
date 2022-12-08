@@ -15,6 +15,7 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
         .map(|line| sscanf!(line, "{u8}-{u8},{u8}-{u8}").unwrap())
         .collect()
 }
+
 fn within(from1: u8, to1: u8, from2: u8, to2: u8) -> bool {
     from1 >= from2 && to1 <= to2
 }
