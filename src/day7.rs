@@ -27,7 +27,7 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
                 if let Some(cmd) = args.next() {
                     match cmd {
                         "ls" => Command::Ls,
-                        "cd" => Command::Cd(args.next().expect("cd takes too args").to_owned() != ".."),
+                        "cd" => Command::Cd(args.next().expect("cd takes too args") != ".."),
                         _ => unreachable!("Unknown command: {}", line),
                     }
                 } else {
