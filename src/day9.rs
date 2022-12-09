@@ -13,6 +13,14 @@ pub enum Dir {
     Right,
 }
 
+type Coordinate = i16;
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+struct Position {
+    x: Coordinate,
+    y: Coordinate,
+}
+
 type InputType = (Dir, u8);
 type SolutionType = i32;
 
@@ -33,31 +41,41 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
         .collect()
 }
 
-fn move_head(dir: Dir, x: i16, y: i16, len: u8) -> (i16, i16) {
+fn move_head(dir: Dir, pos: Position, len: u8) -> Position {
     match dir {
-        Dir::Up => (x, y - len as i16),
-        Dir::Down => (x, y + len as i16),
-        Dir::Left => (x - len as i16, y),
-        Dir::Right => (x + len as i16, y),
+        Dir::Up => Position {
+            x: pos.x,
+            y: pos.y - len as Coordinate,
+        },
+        Dir::Down => Position {
+            x: pos.x,
+            y: pos.y + len as Coordinate,
+        },
+        Dir::Left => Position {
+            x: pos.x - len as Coordinate,
+            y: pos.y,
+        },
+        Dir::Right => Position {
+            x: pos.x + len as Coordinate,
+            y: pos.y,
+        },
     }
 }
 
 #[aoc(day9, part1)]
 pub fn solve_part1(data: &[InputType]) -> SolutionType {
-    let mut head_x = 0;
-    let mut head_y = 0;
-    let mut tail_x = 0;
-    let mut tail_y = 0;
+    let mut head = Position { x: 0, y: 0 };
+    let mut tail = Position { x: 0, y: 0 };
     let mut positions = std::collections::HashSet::new();
-    positions.insert((0, 0));
+    positions.insert(Position { x: 0, y: 0 });
     for (dir, len) in data {
-        (head_x, head_y) = move_head(*dir, head_x, head_y, *len);
-        while (head_x - tail_x).abs() > 1 || (head_y - tail_y).abs() > 1 {
-            let diff_x = head_x - tail_x;
-            let diff_y = head_y - tail_y;
-            tail_x += diff_x.signum();
-            tail_y += diff_y.signum();
-            positions.insert((tail_x, tail_y));
+        head = move_head(*dir, head, *len);
+        while (head.x - tail.x).abs() > 1 || (head.y - tail.y).abs() > 1 {
+            let diff_x = head.x - tail.x;
+            let diff_y = head.y - tail.y;
+            tail.x += diff_x.signum();
+            tail.y += diff_y.signum();
+            positions.insert(tail);
         }
     }
     positions.len() as SolutionType
@@ -66,67 +84,40 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
 #[aoc(day9, part2)]
 pub fn solve_part2(data: &[InputType]) -> SolutionType {
     const ROPES: usize = 10;
-    let mut rope_x = [0; ROPES];
-    let mut rope_y = [0; ROPES];
+    let mut rope = [Position { x: 0, y: 0 }; ROPES];
     let mut positions = std::collections::HashSet::new();
     positions.insert((0, 0));
-    for (dir, len) in data {
-        (rope_x[0], rope_y[0]) = move_head(*dir, rope_x[0], rope_y[0], *len);
-        while (rope_x[0] - rope_x[1]).abs() > 1 || (rope_y[0] - rope_y[1]).abs() > 1 {
+    for &(dir, len) in data {
+        rope[0] = move_head(dir, rope[0], len);
+        while (rope[0].x - rope[1].x).abs() > 1 || (rope[0].y - rope[1].y).abs() > 1 {
             for i in 1..ROPES {
-                if (rope_x[i - 1] - rope_x[i]).abs() > 1 || (rope_y[i - 1] - rope_y[i]).abs() > 1 {
-                    let diff_x = rope_x[i - 1] - rope_x[i];
-                    let diff_y = rope_y[i - 1] - rope_y[i];
-                    rope_x[i] += diff_x.signum();
-                    rope_y[i] += diff_y.signum();
+                if (rope[i - 1].x - rope[i].x).abs() > 1 || (rope[i - 1].y - rope[i].y).abs() > 1 {
+                    let diff_x = rope[i - 1].x - rope[i].x;
+                    let diff_y = rope[i - 1].y - rope[i].y;
+                    rope[i].x += diff_x.signum();
+                    rope[i].y += diff_y.signum();
                     if i == ROPES - 1 {
-                        positions.insert((rope_x[ROPES - 1], rope_y[ROPES - 1]));
+                        positions.insert((rope[ROPES - 1].x, rope[ROPES - 1].y));
                     }
-                }
-                if i == ROPES - 1 {
-                    positions.insert((rope_x[ROPES - 1], rope_y[ROPES - 1]));
                 }
             }
         }
-        /*
-        let min_x = *positions.iter().map(|(x, _y)| x).min().unwrap() - ROPES as i16;
-        let min_y = *positions.iter().map(|(_x, y)| y).min().unwrap() - ROPES as i16;
-        let max_x = *positions.iter().map(|(x, _y)| x).max().unwrap() + ROPES as i16;
-        let max_y = *positions.iter().map(|(_x, y)| y).max().unwrap() + ROPES as i16;
-        for y in min_y..=max_y {
-            'next: for x in min_x..=max_x {
-                for i in 0..ROPES {
-                    if rope_x[i] == x && rope_y[i] == y {
-                        print!("{}", i);
-                        continue 'next;
-                    }
-                }
-                if positions.contains(&(x, y)) {
-                    print!("#");
-                } else {
-                    print!(".");
-                }
-            }
-            println!();
-        }
-        println!();
-        */
     }
     /*
     {
-        let min_x = *positions.iter().map(|(x, _y)| x).min().unwrap() - ROPES as i16;
-        let min_y = *positions.iter().map(|(_x, y)| y).min().unwrap() - ROPES as i16;
-        let max_x = *positions.iter().map(|(x, _y)| x).max().unwrap() + ROPES as i16;
-        let max_y = *positions.iter().map(|(_x, y)| y).max().unwrap() + ROPES as i16;
+        let min_x = positions.iter().map(|pos| pos.x).min().unwrap() - ROPES as i16;
+        let min_y = positions.iter().map(|pos| pos.y).min().unwrap() - ROPES as i16;
+        let max_x = positions.iter().map(|pos| pos.x).max().unwrap() + ROPES as i16;
+        let max_y = positions.iter().map(|pos| pos.y).max().unwrap() + ROPES as i16;
         for y in min_y..=max_y {
             'next: for x in min_x..=max_x {
                 for i in 0..ROPES {
-                    if rope_x[i] == x && rope_y[i] == y {
+                    if rope[i].x == x && rope[i].y == y {
                         print!("{}", i);
                         continue 'next;
                     }
                 }
-                if positions.contains(&(x, y)) {
+                if positions.contains(&Position{x, y}) {
                     print!("#");
                 } else {
                     print!(".");
