@@ -33,12 +33,12 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
         .collect()
 }
 
-fn move_head(dir: Dir, x: i32, y: i32, len: u8) -> (i32, i32) {
+fn move_head(dir: Dir, x: i16, y: i16, len: u8) -> (i16, i16) {
     match dir {
-        Dir::Up => (x, y - len as i32),
-        Dir::Down => (x, y + len as i32),
-        Dir::Left => (x - len as i32, y),
-        Dir::Right => (x + len as i32, y),
+        Dir::Up => (x, y - len as i16),
+        Dir::Down => (x, y + len as i16),
+        Dir::Left => (x - len as i16, y),
+        Dir::Right => (x + len as i16, y),
     }
 }
 
@@ -89,10 +89,10 @@ pub fn solve_part2(data: &[InputType]) -> SolutionType {
             }
         }
         /*
-        let min_x = *positions.iter().map(|(x, _y)| x).min().unwrap() - ROPES as i32;
-        let min_y = *positions.iter().map(|(_x, y)| y).min().unwrap() - ROPES as i32;
-        let max_x = *positions.iter().map(|(x, _y)| x).max().unwrap() + ROPES as i32;
-        let max_y = *positions.iter().map(|(_x, y)| y).max().unwrap() + ROPES as i32;
+        let min_x = *positions.iter().map(|(x, _y)| x).min().unwrap() - ROPES as i16;
+        let min_y = *positions.iter().map(|(_x, y)| y).min().unwrap() - ROPES as i16;
+        let max_x = *positions.iter().map(|(x, _y)| x).max().unwrap() + ROPES as i16;
+        let max_y = *positions.iter().map(|(_x, y)| y).max().unwrap() + ROPES as i16;
         for y in min_y..=max_y {
             'next: for x in min_x..=max_x {
                 for i in 0..ROPES {
@@ -114,10 +114,10 @@ pub fn solve_part2(data: &[InputType]) -> SolutionType {
     }
     /*
     {
-        let min_x = *positions.iter().map(|(x, _y)| x).min().unwrap() - ROPES as i32;
-        let min_y = *positions.iter().map(|(_x, y)| y).min().unwrap() - ROPES as i32;
-        let max_x = *positions.iter().map(|(x, _y)| x).max().unwrap() + ROPES as i32;
-        let max_y = *positions.iter().map(|(_x, y)| y).max().unwrap() + ROPES as i32;
+        let min_x = *positions.iter().map(|(x, _y)| x).min().unwrap() - ROPES as i16;
+        let min_y = *positions.iter().map(|(_x, y)| y).min().unwrap() - ROPES as i16;
+        let max_x = *positions.iter().map(|(x, _y)| x).max().unwrap() + ROPES as i16;
+        let max_y = *positions.iter().map(|(_x, y)| y).max().unwrap() + ROPES as i16;
         for y in min_y..=max_y {
             'next: for x in min_x..=max_x {
                 for i in 0..ROPES {
