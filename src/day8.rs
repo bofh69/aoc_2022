@@ -80,9 +80,9 @@ pub fn solve_part2(data: &[InputType]) -> SolutionType {
                 }
             }
             let mut count2 = 0;
-            for ty in y + 1..height {
+            for ty_data in data.iter().skip(y + 1) {
                 count2 += 1;
-                if data[ty][x] >= tree_height {
+                if ty_data[x] >= tree_height {
                     break;
                 }
             }
