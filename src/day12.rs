@@ -72,6 +72,27 @@ fn get_height(data: &[InputType], x: Coordinate, y: Coordinate) -> u8 {
     height
 }
 
+fn visit_later<F>(data: &[InputType],
+    steps: &mut std::collections::BinaryHeap<Step>,
+    visited: &std::collections::HashSet<(Coordinate, Coordinate)>,
+    current: u8,
+    cost: F,
+    step: &Step,
+    dx: Coordinate,
+    dy: Coordinate)
+    where F: FnOnce(&Step, Coordinate, Coordinate) -> Cost
+{
+    let new = get_height(data, step.x + dx, step.y + dy);
+    if new <= current + 1 && !visited.contains(&(step.x + dx, step.y + dy)) {
+        steps.push(Step {
+            x: step.x + dx,
+            y: step.y + dy,
+            steps: step.steps + 1,
+            cost: cost(step, dx, dy), /*step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), */
+        });
+    }
+}
+
 #[aoc(day12, part1)]
 pub fn solve_part1(data: &[InputType]) -> SolutionType {
     let width = data[0].len();
@@ -102,51 +123,23 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
         let current = get_height(data, step.x, step.y);
 
         if step.x > 0 {
-            let new = get_height(data, step.x - 1, step.y);
-            if new <= current + 1 {
-                steps.push(Step {
-                    x: step.x - 1,
-                    y: step.y,
-                    steps: step.steps + 1,
-                    cost: step.steps as Cost + get_cost(step.x - 1, step.y, end_x, end_y),
-                });
-            }
+            visit_later(data, &mut steps, &visited, current, |step, dx, dy|
+                step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), &step, -1, 0);
         }
 
         if step.x < (width - 1) as Coordinate {
-            let new = get_height(data, step.x + 1, step.y);
-            if new <= current + 1 {
-                steps.push(Step {
-                    x: step.x + 1,
-                    y: step.y,
-                    steps: step.steps + 1,
-                    cost: step.steps as Cost + get_cost(step.x + 1, step.y, end_x, end_y),
-                });
-            }
+            visit_later(data, &mut steps, &visited, current, |step, dx, dy|
+                step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), &step, 1, 0);
         }
 
         if step.y > 0 {
-            let new = get_height(data, step.x, step.y - 1);
-            if new <= current + 1 {
-                steps.push(Step {
-                    y: step.y - 1,
-                    x: step.x,
-                    steps: step.steps + 1,
-                    cost: step.steps as Cost + get_cost(step.x, step.y - 1, end_x, end_y),
-                });
-            }
+            visit_later(data, &mut steps, &visited, current, |step, dx, dy|
+                step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), &step, 0, -1);
         }
 
         if step.y < (height - 1) as Coordinate {
-            let new = get_height(data, step.x, step.y + 1);
-            if new <= current + 1 {
-                steps.push(Step {
-                    y: step.y + 1,
-                    x: step.x,
-                    steps: step.steps + 1,
-                    cost: step.steps as Cost + get_cost(step.x, step.y + 1, end_x, end_y),
-                });
-            }
+            visit_later(data, &mut steps, &visited, current, |step, dx, dy|
+                step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), &step, 0, 1);
         }
     }
 
