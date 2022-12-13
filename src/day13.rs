@@ -3,37 +3,43 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 use aoc_runner_derive::{aoc, aoc_generator};
+use std::cmp::Ordering;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum List {
     List(Vec<List>),
     Number(u8),
 }
 
-impl Eq for List {}
-
-impl PartialEq for List {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (List::Number(a), List::Number(b)) => a == b,
-            (List::List(a), List::List(b)) => a == b,
-            _ => false,
-        }
-    }
-}
-
 impl Ord for List {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        match right_order(self, other) {
-            Some(true) => std::cmp::Ordering::Less,
-            None => std::cmp::Ordering::Equal,
-            Some(false) => std::cmp::Ordering::Greater,
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self, other) {
+            // Lowest number wins.
+            (List::Number(a), List::Number(b)) => a.cmp(b),
+
+            // Shortest list wins with lower/equal contents.
+            (List::List(a), List::List(b)) => {
+                for i in 0..a.len() {
+                    if i >= b.len() {
+                        return Ordering::Greater;
+                    }
+                    let result = a[i].cmp(&b[i]);
+                    if result != Ordering::Equal {
+                        return result;
+                    }
+                }
+                a.len().cmp(&b.len())
+            }
+
+            // Numbers are promoted to lists and compared:
+            (List::Number(a), List::List(_)) => List::List(vec![List::Number(*a)]).cmp(other),
+            (List::List(_), List::Number(b)) => self.cmp(&List::List(vec![List::Number(*b)])),
         }
     }
 }
 
 impl PartialOrd for List {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -82,7 +88,7 @@ fn parse_bytes(line: &[u8], pos: &mut usize) -> List {
             panic!("Expected ] as position {pos}");
         }
         *pos += 1;
-        return result;
+        result
     } else if is_digit(line[*pos]) {
         parse_number(line, pos)
     } else {
@@ -110,44 +116,18 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
 }
 
 fn right_order(a: &List, b: &List) -> Option<bool> {
-    match (a, b) {
-        (List::Number(a), List::Number(b)) => {
-            if a < b {
-                Some(true)
-            } else if a == b {
-                None
-            } else {
-                Some(false)
-            }
-        }
-        (List::List(a), List::List(b)) => {
-            for i in 0..a.len() {
-                if i >= b.len() {
-                    return Some(false);
-                }
-                match right_order(&a[i], &b[i]) {
-                    Some(val) => return Some(val),
-                    None => (),
-                }
-            }
-            if a.len() < b.len() {
-                Some(true)
-            } else if a.len() == b.len() {
-                None
-            } else {
-                Some(false)
-            }
-        }
-        (List::Number(a), List::List(_)) => right_order(&List::List(vec![List::Number(*a)]), b),
-        (List::List(_), List::Number(b)) => right_order(a, &List::List(vec![List::Number(*b)])),
+    match a.cmp(b) {
+        Ordering::Less => Some(true),
+        Ordering::Equal => None,
+        Ordering::Greater => Some(false),
     }
 }
 
 #[aoc(day13, part1)]
 pub fn solve_part1(data: &[InputType]) -> SolutionType {
     let mut result = 0;
-    for i in 0..data.len() {
-        if right_order(&data[i].0, &data[i].1).unwrap() {
+    for (i, pair) in data.iter().enumerate() {
+        if right_order(&pair.0, &pair.1).unwrap() {
             let i = i + 1;
             result += i;
         }
@@ -167,10 +147,10 @@ pub fn solve_part2(data: &[InputType]) -> SolutionType {
     rows.sort();
     let mut first = 0;
     let mut second = 0;
-    for i in 0..rows.len() {
-        if rows[i] == List::List(vec![List::List(vec![List::Number(2)])]) {
+    for (i, row) in rows.iter().enumerate() {
+        if *row == List::List(vec![List::List(vec![List::Number(2)])]) {
             first = i + 1;
-        } else if rows[i] == List::List(vec![List::List(vec![List::Number(6)])]) {
+        } else if *row == List::List(vec![List::List(vec![List::Number(6)])]) {
             second = i + 1;
         }
     }
