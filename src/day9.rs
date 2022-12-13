@@ -3,9 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 use aoc_runner_derive::{aoc, aoc_generator};
-// use rayon::prelude::*;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub enum Dir {
     Up,
     Down,
@@ -15,7 +14,7 @@ pub enum Dir {
 
 type Coordinate = i16;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Default)]
 struct Position {
     x: Coordinate,
     y: Coordinate,
@@ -67,7 +66,7 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
     let mut head = Position { x: 0, y: 0 };
     let mut tail = Position { x: 0, y: 0 };
     let mut positions = std::collections::HashSet::new();
-    positions.insert(Position { x: 0, y: 0 });
+    positions.insert(Default::default());
     for (dir, len) in data {
         head = move_head(*dir, head, *len);
         while (head.x - tail.x).abs() > 1 || (head.y - tail.y).abs() > 1 {
@@ -75,7 +74,7 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
             let diff_y = head.y - tail.y;
             tail.x += diff_x.signum();
             tail.y += diff_y.signum();
-            positions.insert(tail);
+            positions.insert((tail.x, tail.y));
         }
     }
     positions.len() as SolutionType
