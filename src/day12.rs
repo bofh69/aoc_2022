@@ -42,11 +42,9 @@ impl PartialEq for Step {
 }
 
 fn find_value(data: &[InputType], value: u8) -> (Coordinate, Coordinate) {
-    let width = data[0].len();
-
     for (y, y_data) in data.iter().enumerate() {
-        for x in 0..width {
-            if y_data[x] == value {
+        for (x, x_data) in y_data.iter().enumerate() {
+            if *x_data == value {
                 return (
                     x.try_into().expect("A small enough number"),
                     y.try_into().expect("A small enough number"),
@@ -72,23 +70,24 @@ fn get_height(data: &[InputType], x: Coordinate, y: Coordinate) -> u8 {
     height
 }
 
-fn visit_later<F>(data: &[InputType],
+fn visit_later<F>(
+    data: &[InputType],
     steps: &mut std::collections::BinaryHeap<Step>,
     visited: &std::collections::HashSet<(Coordinate, Coordinate)>,
     current: u8,
     cost: F,
     step: &Step,
-    dx: Coordinate,
-    dy: Coordinate)
-    where F: FnOnce(&Step, Coordinate, Coordinate) -> Cost
+    d: (Coordinate, Coordinate),
+) where
+    F: FnOnce(&Step, Coordinate, Coordinate) -> Cost,
 {
-    let new = get_height(data, step.x + dx, step.y + dy);
-    if new <= current + 1 && !visited.contains(&(step.x + dx, step.y + dy)) {
+    let new = get_height(data, step.x + d.0, step.y + d.1);
+    if new <= current + 1 && !visited.contains(&(step.x + d.0, step.y + d.1)) {
         steps.push(Step {
-            x: step.x + dx,
-            y: step.y + dy,
+            x: step.x + d.0,
+            y: step.y + d.1,
             steps: step.steps + 1,
-            cost: cost(step, dx, dy), /*step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), */
+            cost: cost(step, d.0, d.1), /*step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), */
         });
     }
 }
@@ -123,23 +122,59 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
         let current = get_height(data, step.x, step.y);
 
         if step.x > 0 {
-            visit_later(data, &mut steps, &visited, current, |step, dx, dy|
-                step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), &step, -1, 0);
+            visit_later(
+                data,
+                &mut steps,
+                &visited,
+                current,
+                |step, dx, dy| {
+                    step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y)
+                },
+                &step,
+                (-1, 0),
+            );
         }
 
         if step.x < (width - 1) as Coordinate {
-            visit_later(data, &mut steps, &visited, current, |step, dx, dy|
-                step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), &step, 1, 0);
+            visit_later(
+                data,
+                &mut steps,
+                &visited,
+                current,
+                |step, dx, dy| {
+                    step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y)
+                },
+                &step,
+                (1, 0),
+            );
         }
 
         if step.y > 0 {
-            visit_later(data, &mut steps, &visited, current, |step, dx, dy|
-                step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), &step, 0, -1);
+            visit_later(
+                data,
+                &mut steps,
+                &visited,
+                current,
+                |step, dx, dy| {
+                    step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y)
+                },
+                &step,
+                (0, -1),
+            );
         }
 
         if step.y < (height - 1) as Coordinate {
-            visit_later(data, &mut steps, &visited, current, |step, dx, dy|
-                step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y), &step, 0, 1);
+            visit_later(
+                data,
+                &mut steps,
+                &visited,
+                current,
+                |step, dx, dy| {
+                    step.steps as Cost + get_cost(step.x + dx, step.y + dy, end_x, end_y)
+                },
+                &step,
+                (0, 1),
+            );
         }
     }
 
