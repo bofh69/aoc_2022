@@ -51,9 +51,9 @@ fn output_world(
     world: &std::collections::HashSet<(Coordinate, Coordinate)>,
     stones: &std::collections::HashSet<(Coordinate, Coordinate)>,
 ) {
-    let min_x = stones.iter().map(|pos| pos.0).min().unwrap();
-    let max_x = stones.iter().map(|pos| pos.0).max().unwrap();
-    let max_y = stones.iter().map(|pos| pos.1).max().unwrap();
+    let min_x = world.iter().map(|pos| pos.0).min().unwrap();
+    let max_x = world.iter().map(|pos| pos.0).max().unwrap();
+    let max_y = world.iter().map(|pos| pos.1).max().unwrap();
 
     for y in 0..=max_y {
         print!("{y:<2}");
@@ -129,5 +129,55 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
 
 #[aoc(day14, part2)]
 pub fn solve_part2(data: &[InputType]) -> SolutionType {
-    data.len() as SolutionType
+    let mut world = std::collections::HashSet::new();
+    for segment in data {
+        for i in 1..segment.len() {
+            let last_segment = segment[i - 1];
+            let len_x = segment[i].0 - last_segment.0;
+            let len_y = segment[i].1 - last_segment.1;
+            for j in 0..=(len_x.abs() + len_y.abs()) {
+                world.insert((
+                    last_segment.0 + j * len_x.signum(),
+                    last_segment.1 + j * len_y.signum(),
+                ));
+            }
+        }
+    }
+
+    let max_y = *data
+        .iter()
+        .map(|segment| segment.iter().map(|(_x, y)| y).max().unwrap())
+        .max()
+        .unwrap();
+
+    let stones = world.clone();
+
+    let mut y = START_Y;
+    while !world.contains(&(START_X, START_Y)) {
+        let mut x = START_X;
+
+        'fall: while y < max_y + 1 {
+            match can_move(&world, x, y) {
+                Movement::Down => {
+                    y += 1;
+                }
+                Movement::Left => {
+                    x -= 1;
+                    y += 1;
+                }
+                Movement::Right => {
+                    x += 1;
+                    y += 1;
+                }
+                Movement::Blocked => {
+                    break 'fall;
+                }
+            }
+        }
+        world.insert((x, y));
+        y = START_Y;
+    }
+
+    output_world(&world, &stones);
+    (world.len() - stones.len()) as SolutionType
 }
