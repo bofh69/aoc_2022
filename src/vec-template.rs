@@ -8,20 +8,18 @@ use aoc_runner_derive::{aoc, aoc_generator};
 type InputType = String;
 type SolutionType = i32;
 
-#[aoc_generator(day3)]
+#[aoc_generator(day14)]
 pub fn input_generator(input: &str) -> Vec<InputType> {
     let mut result = vec![];
     result
 }
 
-#[aoc(day3, part1)]
+#[aoc(day14, part1)]
 pub fn solve_part1(data: &[InputType]) -> SolutionType {
-    0
+    data.len() as SolutionType
 }
 
-#[aoc(day3, part2)]
+#[aoc(day14, part2)]
 pub fn solve_part2(data: &[InputType]) -> SolutionType {
-    // let mut result: Vec<_> = data.into();
-    // result.iter().sum::<SolutionType>()
-    0
+    data.len() as SolutionType
 }
