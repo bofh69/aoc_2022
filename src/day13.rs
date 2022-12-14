@@ -138,20 +138,20 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
 #[aoc(day13, part2)]
 pub fn solve_part2(data: &[InputType]) -> SolutionType {
     let mut rows = vec![];
-    rows.push(parse_line("[[2]]"));
-    rows.push(parse_line("[[6]]"));
     for pair in data {
         rows.push(pair.0.clone());
         rows.push(pair.1.clone());
     }
-    rows.sort();
-    let mut first = 0;
-    let mut second = 0;
-    for (i, row) in rows.iter().enumerate() {
-        if *row == List::List(vec![List::List(vec![List::Number(2)])]) {
-            first = i + 1;
-        } else if *row == List::List(vec![List::List(vec![List::Number(6)])]) {
-            second = i + 1;
+    let first_delim = parse_line("[[2]]");
+    let second_delim = parse_line("[[6]]");
+    let mut first = 1;
+    let mut second = 2;
+    for row in rows {
+        if row < first_delim {
+            first += 1;
+            second += 1;
+        } else if row < second_delim {
+            second += 1;
         }
     }
     (first * second) as SolutionType
