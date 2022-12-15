@@ -5,7 +5,7 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use std::ops::RangeInclusive;
 
-type Coordinate = i32;
+type Coordinate = i64;
 type InputType = (Coordinate, Coordinate, Coordinate, Coordinate);
 type SolutionType = usize;
 
@@ -52,24 +52,32 @@ fn insert_range(result: &mut Vec<RangeInclusive<Coordinate>>, range: RangeInclus
     }
 }
 
-#[aoc(day15, part1)]
-pub fn solve_part1(data: &[InputType]) -> SolutionType {
+fn join_on_line(
+    result: &mut Vec<RangeInclusive<Coordinate>>,
+    data: &[InputType],
+    line: Coordinate,
+) {
     let ranges_on_line = data
         .iter()
         .map(|(x, y, x2, y2)| (x, y, (x - x2).abs() + (y - y2).abs()))
-        .filter(|&(_x, y, len)| (y + len) >= LINE && (y - len) <= LINE)
+        .filter(|&(_x, y, len)| (y + len) >= line && (y - len) <= line)
         .map(|(x, y, len)| {
-            let distance = (LINE - y).abs();
+            let distance = (line - y).abs();
             let start = x - (len - distance);
             let end = x + (len - distance);
             start..=end
         })
         .collect::<Vec<_>>();
 
-    let mut joined_ranges = vec![];
     for range in ranges_on_line {
-        insert_range(&mut joined_ranges, range);
+        insert_range(result, range);
     }
+}
+
+#[aoc(day15, part1)]
+pub fn solve_part1(data: &[InputType]) -> SolutionType {
+    let mut joined_ranges = vec![];
+    join_on_line(&mut joined_ranges, data, LINE);
 
     let mut beacons_on_line = data
         .iter()
@@ -89,5 +97,25 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
 
 #[aoc(day15, part2)]
 pub fn solve_part2(data: &[InputType]) -> SolutionType {
-    data.len() as SolutionType
+    const MAX_VALUE: Coordinate = 4000000;
+
+    let mut line = vec![];
+    for y in 0..=MAX_VALUE {
+        line.clear();
+        join_on_line(&mut line, data, y);
+        let mut x = 0;
+        'find_x: while x <= MAX_VALUE {
+            for range in &line {
+                if range.contains(&x) {
+                    x = *range.end() + 1;
+                    continue 'find_x;
+                }
+            }
+            break;
+        }
+        if x <= MAX_VALUE {
+            return (x * 4000000 + y) as SolutionType;
+        }
+    }
+    0
 }
