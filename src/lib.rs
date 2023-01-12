@@ -21,7 +21,7 @@ mod day15;
 mod day16;
 mod day17;
 mod day18;
-// mod day19;
+mod day19;
 // mod day20;
 // mod day21;
 // mod day22;
