@@ -170,7 +170,9 @@ pub fn solve_part1(data: &[InputType]) -> SolutionType {
 }
 
 #[aoc(day16, part2)]
-pub fn solve_part2(data: &[InputType]) -> SolutionType {
+pub fn solve_part2(_data: &[InputType]) -> SolutionType {
+    // TODO
+    /*
     // Translate strings to numbers:
     let mut name_mapping = HashMap::new();
     for (i, name) in data.iter().map(|(name, _, _)| name).enumerate() {
@@ -215,7 +217,7 @@ pub fn solve_part2(data: &[InputType]) -> SolutionType {
     // The search space left to expand:
     let mut current = BinaryHeap::new();
 
-    #[derive(Ord,PartialOrd,Eq,PartialEq,Debug)]
+    #[derive(Ord, PartialOrd, Eq, PartialEq, Debug)]
     struct Move {
         sum: i32,
         released_pressure: i32,
@@ -237,7 +239,7 @@ pub fn solve_part2(data: &[InputType]) -> SolutionType {
         position: *name_mapping.get(&"AA".to_owned()).unwrap(),
         position_for_slower: *name_mapping.get(&"AA".to_owned()).unwrap(),
     });
-    
+
     /*
     while let Some(mov) = current.pop() {
         // If we don't open any more valves, what's the total released pressure:
@@ -299,4 +301,6 @@ pub fn solve_part2(data: &[InputType]) -> SolutionType {
     */
 
     *best.iter().max().unwrap()
+    */
+    0
 }

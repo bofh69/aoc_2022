@@ -19,8 +19,7 @@ pub fn input_generator(input: &str) -> Vec<InputType> {
         .collect()
 }
 
-fn get_areas(cubes: &HashSet<Position>) -> SolutionType
-{
+fn get_areas(cubes: &HashSet<Position>) -> SolutionType {
     let mut result = 0;
     for cube in cubes {
         if !cubes.contains(&(cube.0 + 1, cube.1, cube.2)) {
@@ -47,11 +46,16 @@ fn get_areas(cubes: &HashSet<Position>) -> SolutionType
 
 #[aoc(day18, part1)]
 pub fn solve_part1(data: &[InputType]) -> SolutionType {
-    let cubes: HashSet<Position> = data.iter().map(|&p| p).collect();
+    let cubes: HashSet<Position> = data.iter().copied().collect();
     get_areas(&cubes)
 }
 
-fn try_fill_(cubes: &mut HashSet<Position>, pos: &Position, min: &Position, max: &Position) -> Option<SolutionType> {
+fn try_fill_(
+    cubes: &mut HashSet<Position>,
+    pos: &Position,
+    min: &Position,
+    max: &Position,
+) -> Option<SolutionType> {
     // At a boarder
     if pos.0 - 1 < min.0 {
         return None;
@@ -72,7 +76,7 @@ fn try_fill_(cubes: &mut HashSet<Position>, pos: &Position, min: &Position, max:
         return None;
     }
 
-    cubes.insert(pos.clone());
+    cubes.insert(*pos);
     let mut result = 0;
     if !cubes.contains(&(pos.0 - 1, pos.1, pos.2)) {
         if let Some(n) = try_fill_(cubes, &(pos.0 - 1, pos.1, pos.2), min, max) {
@@ -98,8 +102,6 @@ fn try_fill_(cubes: &mut HashSet<Position>, pos: &Position, min: &Position, max:
         } else {
             return None;
         }
-    } else {
-        result += 1 - 1;
     }
     if !cubes.contains(&(pos.0 + 1, pos.1, pos.2)) {
         if let Some(n) = try_fill_(cubes, &(pos.0 + 1, pos.1, pos.2), min, max) {
@@ -131,7 +133,12 @@ fn try_fill_(cubes: &mut HashSet<Position>, pos: &Position, min: &Position, max:
     Some(result)
 }
 
-fn try_fill(cubes: &mut HashSet<Position>, pos: &Position, min: &Position, max: &Position) -> SolutionType {
+fn try_fill(
+    cubes: &mut HashSet<Position>,
+    pos: &Position,
+    min: &Position,
+    max: &Position,
+) -> SolutionType {
     let mut spare_cubes = cubes.clone();
     if let Some(n) = try_fill_(&mut spare_cubes, pos, min, max) {
         cubes.extend(spare_cubes.iter());
@@ -143,7 +150,7 @@ fn try_fill(cubes: &mut HashSet<Position>, pos: &Position, min: &Position, max: 
 
 #[aoc(day18, part2)]
 pub fn solve_part2(data: &[InputType]) -> SolutionType {
-    let mut cubes: HashSet<Position> = data.iter().map(|&p| p).collect();
+    let mut cubes: HashSet<Position> = data.iter().copied().collect();
     let min = {
         let min_x = cubes.iter().map(|(x, _, _)| *x).min().unwrap();
         let min_y = cubes.iter().map(|(_, y, _)| *y).min().unwrap();
@@ -158,9 +165,9 @@ pub fn solve_part2(data: &[InputType]) -> SolutionType {
     };
 
     let mut result = get_areas(&cubes);
-    for x in min.0+1..max.0 {
-        for y in min.1+1..max.1 {
-            for z in min.2+1..max.2 {
+    for x in min.0 + 1..max.0 {
+        for y in min.1 + 1..max.1 {
+            for z in min.2 + 1..max.2 {
                 if !cubes.contains(&(x, y, z)) {
                     result -= try_fill(&mut cubes, &(x, y, z), &min, &max);
                 }
