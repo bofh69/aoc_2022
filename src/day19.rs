@@ -6,7 +6,15 @@ use aoc_runner_derive::{aoc, aoc_generator};
 // use rayon::prelude::*;
 
 type CountType = u16;
-type InputType = (u8, CountType, CountType, CountType, CountType, CountType, CountType);
+type InputType = (
+    u8,
+    CountType,
+    CountType,
+    CountType,
+    CountType,
+    CountType,
+    CountType,
+);
 type SolutionType = i32;
 
 #[aoc_generator(day19)]
