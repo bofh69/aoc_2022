@@ -1,0 +1,3 @@
+[submodule "workspaces/advent_of_tools"]
+	path = workspaces/advent_of_tools
+	url = git@github.com:bofh69/advent_of_tools.git
